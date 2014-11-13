@@ -21,23 +21,12 @@ function _sleep(milliseconds) {
     }
   }
 }
-
 var App = React.createClass({
-    getInitialState: function() { 
-        return _getStateFromStore();
-    },
-    componentWillMount: function(){
-        ValueStore.addChangeListener(this._onChange);
-    },
-    componentWillUnmount: function(){
-        ValueStore.removeChangeListener(this._onChange);
-    },
+    mixins: [ValueStore.mixin],
+
 	componentWillUpdate: function(nextProps, nextState){
 		console.debug("App.react.componentWillUpdate", nextProps, nextState);
 	},
-    _onChange : function(){
-        this.setState(_getStateFromStore());
-    },
     _updateValue: function(){
         AppActions.changeValue(0);
 	},
@@ -45,7 +34,7 @@ var App = React.createClass({
         AppActions.startAsyncUpdate();
 	},
     render: function() {
-		var xs = this.state.value;
+		var xs = getValue()
 		console.debug("App.react.render 1", xs.length);
 
         if(xs[xs.length-1] === 0){
@@ -64,6 +53,5 @@ var App = React.createClass({
         );
     }
 });
-
 
 module.exports = App;
