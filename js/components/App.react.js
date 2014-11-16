@@ -25,24 +25,36 @@ var App = React.createClass({
     mixins: [ValueStore.mixin],
 
 	componentWillUpdate: function(nextProps, nextState){
-		console.debug("App.react.componentWillUpdate", nextProps, nextState);
+		console.debug("App.react.componentWillUpdate", this.props.id, nextProps, nextState, ValueStore.getValue());
 	},
     _updateValue: function(){
-        AppActions.changeValue(0);
+        AppActions.changeValue(this.props.id);
 	},
     _startAsyncUpdate: function(){
         AppActions.startAsyncUpdate();
 	},
+
+	componentDidMount: function(){
+		console.debug("App.react.componentDidMount", this.props.id);
+	},
+// Uncomment this to use custom callback when the value is changed in the store 
+/*
+    onValueChangedInStoreCallback: function(){
+		console.log("onValueChangedCallback", this.props.id);
+		this.forceUpdate();
+    },
+*/
+
     render: function() {
-		var xs = getValue()
-		console.debug("App.react.render 1", xs.length);
+		var xs = ValueStore.getValue();
+		console.debug("App.react.render (1)", this.props.id, xs);
 
         if(xs[xs.length-1] === 0){
-			console.debug("App.react.render 2", xs.length);
+			console.debug("App.react.render (2)", this.props.id, xs.length);
 			_sleep(100000);
-			console.debug("App.react.render 3", xs.length);
+			console.debug("App.react.render (3)", this.props.id, xs.length);
 		}
-		console.debug("App.react.render 4", xs);
+		console.debug("App.react.render (4)", this.props.id, xs);
 		var xss = xs.map(function(x){return (<section>{x}</section>)}); 
         return (
             <div>

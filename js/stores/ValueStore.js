@@ -5,142 +5,53 @@ var assign = require('object-assign');
 
 var CHANGE_EVENT = 'change';
 
-/*
-var Store  = function(){
-	assign(this, EventEmitter.prototype);
-	var self = this;
-    this._value =  ["some initial value..."];
-    this.changeCallbacks = {};
-
-    self.getValue = function(){
-        console.debug("Store.getValue", self._value);
-        return self._value;
-    },
-
-    self.emitChange = function() {
-        self.emit(CHANGE_EVENT);
-    };
-
-    self.addChangeListener = function(callback) {
-        self.on(CHANGE_EVENT, callback);
-    };
-
-    self.removeChangeListener = function(callback) {
-        self.removeListener(CHANGE_EVENT, callback);
-    };
-
-    self.onChangeFun = function(that){
-        if (!self.changeCallbacks[that]){
-			self.changeCallbacks[that] = function(){
-				that.setState({value: self._value});
-			};
-		}
-		return self.changeCallbacks[that];
-	}
-
-    self.mixin = {
-        getValue : function(){self.getValue();},
-	    componentDidMount: function() {
-			self.addChangeListener(self.onChangeFun(this));
-		},
-		componentWillUnmount: function() {
-			self.removeChangeListener(self.onChangeFun(this));
-		}
-	}
-
-    dispatcherIndex: AppDispatcher.register(function(payload) {
-        var action = payload.action;
-        switch(action.actionType){
-            case AppConstants.CHANGE_VALUE:
-            console.debug("Store dispatcher callback", action.value);
-            self._value.push(action.value);
-                break;
-            default:
-                return true;
-        }
-        self.emitChange();
-        return true;
-    })
-
-    return self;
-};
-*/
-
-var Store  = function(){
-	assign(this, EventEmitter.prototype);
-	var self = this;
-    this.changeCallbacks = {};
-
-    emitChange = function() {
-        self.emit(CHANGE_EVENT);
-    };
-
-    self.addChangeListener = function(callback) {
-        self.on(CHANGE_EVENT, callback);
-    };
-
-    self.removeChangeListener = function(callback) {
-        self.removeListener(CHANGE_EVENT, callback);
-    };
-
-    self.onChangeFun = function(that){
-        if (!self.changeCallbacks[that]){
-			self.changeCallbacks[that] = that.onChangeCallback;
-		}
-		return self.changeCallbacks[that];
-	}
-
-    self.mixin = {
-	    componentDidMount: function() {
-			self.addChangeListener(self.onChangeFun(this));
-		},
-		componentWillUnmount: function() {
-			self.removeChangeListener(self.onChangeFun(this));
-		}
-	}
-	assign(self.prototype, {onChangeFun:self.onChangeFun}, EventEmitter.prototype);
-
-};
-
 var ValueStore  = function(){
-	assign(this, Store.prototype,EventEmitter.prototype);
-	var self = this;
-    
-	this._value =  ["some other initial value..."];
+	assign(this, EventEmitter.prototype);
+    var thiz = this;
 
-    self.getValue = function(){
-        console.debug("ValueStore.getValue", self._value);
-        return self._value;
-    },
-
-	self.onChangeCallback =  function(){
-		that.setState({value: self._value});
-	};
-
-    self.mixin = assign({}, Store.mixin,{
-        getValue : function(){self.getValue();},
-	})
-
-    emitChange = function() {
-        self.emit(CHANGE_EVENT);
-    };
+	var _value = ["some intial value"];
 
     // Register to handle all updates
-    dispatcherIndex: AppDispatcher.register(function(payload) {
+    thiz.dispatcherIndex = AppDispatcher.register(function(payload) {
         var action = payload.action;
         switch(action.actionType){
             case AppConstants.CHANGE_VALUE:
-            console.debug("ValueStore dispatcher callback", action.value);
-            self._value.push(action.value);
+            _value.push(action.value);
+            console.debug("ValueStore dispatcher callback ", action.value, _value);
                 break;
             default:
                 return true;
         }
-        self.emitChange();
+        thiz.emit(CHANGE_EVENT);
         return true;
     })
     
-    return self;
+    thiz.getOnValueChangedCallback = function(that){
+        if(!that.onValueChangedInStoreCallback){
+		    that.onValueChangedInStoreCallback = function(){
+				console.log("thiz.onChangeFun calling default callback", that.props.id);
+				that.forceUpdate();
+			};
+		}
+		return that.onValueChangedInStoreCallback;
+	};
+	
+    return {
+		getValue: function(){
+			return _value;
+		},
+		mixin: {
+			componentDidMount: function() {
+				console.log(" ValueStore2.mixin.componentDidMount", this.props.id)
+				thiz.on(CHANGE_EVENT, getOnValueChangedCallback(this));
+			},
+			componentWillUnmount: function() {
+				thiz.removeListener(CHANGE_EVENT, getOnValueChangedCallback(this));
+			},
+            dispatcherIndex: thiz.dispatcherIndex
+		}
+	}
+
 }();
 
 module.exports = ValueStore;

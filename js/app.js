@@ -7,7 +7,7 @@ var React = require('react');
 var App = require('./components/App.react');
 
 React.renderComponent(
-   App(),
+   <div><App id={1}/><App id={2}/></div>,
     document.getElementById('content')
 );
 
