@@ -40,21 +40,17 @@ var App = React.createClass({
 // Uncomment this to use custom callback when the value is changed in the store 
 /*
     onValueChangedInStoreCallback: function(){
-		console.log("onValueChangedCallback", this.props.id);
+		console.log("onValueChangedInStoreCallback", this.props.id);
 		this.forceUpdate();
     },
 */
 
     render: function() {
 		var xs = ValueStore.getValue();
-		console.debug("App.react.render (1)", this.props.id, xs);
+		console.debug("App.react.render (1)", this.props.id, xs, ValueStore.dispatcherIndex);
+		_sleep(10000);
 
-        if(xs[xs.length-1] === 0){
-			console.debug("App.react.render (2)", this.props.id, xs.length);
-			_sleep(100000);
-			console.debug("App.react.render (3)", this.props.id, xs.length);
-		}
-		console.debug("App.react.render (4)", this.props.id, xs);
+		console.debug("App.react.render (2)", this.props.id, xs);
 		var xss = xs.map(function(x){return (<section>{x}</section>)}); 
         return (
             <div>
